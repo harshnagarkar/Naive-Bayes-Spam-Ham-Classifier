@@ -31,6 +31,11 @@ class calculate{
     long double Plog_spam;
     long double min_Pham;
     long double min_Pspam;
+    long double TPos;
+    long double FNeg;
+    long double TNeg;
+    long double FPos;
+    int total_words;
 
     public:
     calculate();
@@ -41,7 +46,8 @@ class calculate{
     void prior_class_probablities(int k, int n);
     void conditional_word_probablities(int k);
     void posterior_class_probablities(string testing_filename1, string testing_filename2);
-    bool classify_message();
-    void calculate_metric();
+    string classify_message();
+    void calculate_metric(string given, string actual);
     int calculate_distinct();
+    void print_metric();
 };

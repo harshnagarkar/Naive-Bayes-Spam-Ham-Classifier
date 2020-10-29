@@ -39,7 +39,7 @@ void calculate::map_file_spam(string filename)
         {
             std::cout << elem.first << " " << spam_word_count[elem.first] << "\n";
         }
-        cout<<"Priot size: "<<spam_word_count.size();
+        cout << "Priot size: " << spam_word_count.size();
 
         myfile2.close();
     }
@@ -151,7 +151,7 @@ void calculate::map_file_ham(string filename)
             }
         }
         // min_Pham = 5000000;
-        cout<<"Prior size: "<<ham_word_count.size();
+        cout << "Prior size: " << ham_word_count.size();
         for (auto elem : ham_word_count)
         {
             std::cout << elem.first << " " << ham_word_count[elem.first] << "\n";
@@ -170,7 +170,8 @@ void calculate::prior_class_probablities(int k, int n)
     cout << prior_prob_ham << "\n";
 }
 
-int calculate::calculate_distinct(){
+int calculate::calculate_distinct()
+{
     int distinct = 0;
     // for (auto elem : ham_word_count)
     // {
@@ -181,7 +182,8 @@ int calculate::calculate_distinct(){
     distinct += ham_word_count.size();
     for (auto elem : spam_word_count)
     {
-        if(ham_word_count.count(elem.first)<=0){
+        if (ham_word_count.count(elem.first) <= 0)
+        {
             distinct++;
         }
     }
@@ -192,27 +194,26 @@ void calculate::conditional_word_probablities(int k)
 {
     int n = calculate_distinct();
 
-
     // cout<<" ham size: "<<ham_word_count.size();
 
-
-    min_Pham=50000000000000;
+    min_Pham = 50000000000000;
+    min_Pspam = 5000000000000;
     for (auto elem : ham_word_count)
     {
-    // cout<<" conditional word probablity \n";
+        // cout<<" conditional word probablity \n";
         // cout<<"elem "<<elem.first<<" "<<elem.second;
-        ham_conditional_word_count[elem.first] = (1.0000*(elem.second + k)) / (ham_line_count + k * n);
+        ham_conditional_word_count[elem.first] = (1.0000 * (elem.second + k)) / (ham_line_count + k * n);
         // cout<<"conditional "<<ham_conditional_word_count[elem.first];
         if (ham_conditional_word_count[elem.first] < min_Pham)
         {
             min_Pham = ham_conditional_word_count[elem.first];
         }
     }
-    cout<<"\n spam conditional "<<spam_word_count.size();
+    cout << "\n spam conditional " << spam_word_count.size();
     n = spam_word_count.size();
     for (auto elem : spam_word_count)
     {
-        spam_conditional_word_count[elem.first] = (1.000000*(elem.second + k)) / (spam_line_count + k * n);
+        spam_conditional_word_count[elem.first] = (1.000000 * (elem.second + k)) / (spam_line_count + k * n);
         if (spam_conditional_word_count[elem.first] < min_Pham)
         {
             min_Pspam = spam_conditional_word_count[elem.first];
@@ -222,7 +223,7 @@ void calculate::conditional_word_probablities(int k)
 
 void calculate::posterior_class_probablities(string testing_filename1, string testing_filename2)
 {
-    cout<<"\n Posterior \n";
+    cout << "\n Posterior \n";
     vector<long double> ham_prob;
     vector<long double> spam_prob;
 
@@ -241,25 +242,33 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             // Read an integer at a time from the line
             while (lineStream >> value)
             {
-                if (ham_conditional_word_count.count(value)!=0)
+                if (ham_conditional_word_count.count(value) != 0)
                 {
                     // cout<<"Spam word: "<<spam_conditional_word_count[value];
                     Plog_ham += log2l(ham_conditional_word_count[value]);
-                    Plog_spam += log2l(spam_conditional_word_count[value]);
                     // cout<<Plog_spam<<" value \n";
                     // cout<<" added "<< log2l(ham_conditional_word_count[value]);
-                }else{
+                }
+                else
+                {
                     Plog_ham += min_Pham;
-                    Plog_spam += min_Pspam;
                     // cout<<" added min "<<min_Pham;
                 }
+                if (spam_conditional_word_count.count(value) != 0)
+                {
+                    Plog_spam += log2l(spam_conditional_word_count[value]);
+                    // cout<<spam_conditional_word_count[value]<<" t \n";
+                }
+                else
+                {
+                    Plog_spam += min_Pspam;
+                }
             }
-            cout<<"\n Main value "<<Plog_ham<<" "<<Plog_spam<<"\n";
-            
+            cout << "\n Main value " << Plog_ham << " " << Plog_spam << "\n";
         }
     }
     myfile.close();
-    
+
     ifstream myfile2(testing_filename2);
     string line2;
     if (myfile2.is_open())
@@ -270,20 +279,30 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             std::stringstream lineStream(line2);
             string value;
             Plog_spam = log2l(prior_prob_spam);
-            cout<<Plog_spam<<" rot";
+            Plog_ham = log2l(prior_prob_ham);
+            cout<<min_Pham<<" rot "<<min_Pspam;
             // Read an integer at a time from the line
             while (lineStream >> value)
             {
-                if (spam_conditional_word_count.count(value)!=0)
+                if (spam_conditional_word_count.count(value) != 0)
                 {
                     Plog_spam += log2l(spam_conditional_word_count[value]);
-                    cout<<spam_conditional_word_count[value]<<" t \n";
-                }else{
-                    Plog_spam+=min_Pspam;
+                    // cout<<spam_conditional_word_count[value]<<" t \n";
+                }
+                else
+                {
+                    Plog_spam += min_Pspam;
+                }
+                if (ham_conditional_word_count.count(value) != 0)
+                {
+                    Plog_ham += log2l(ham_conditional_word_count[value]);
+                }
+                else
+                {
+                    Plog_ham += min_Pham;
                 }
             }
-            cout<<"Spam value: "<<Plog_spam;
-            
+            cout << "\n Main value " << Plog_ham << " " << Plog_spam << "\n";
         }
     }
     myfile2.close();

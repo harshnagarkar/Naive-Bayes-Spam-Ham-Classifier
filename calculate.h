@@ -16,8 +16,8 @@ using namespace std;
 class calculate{
     map<string, int> spam_word_count;
     map<string, int> ham_word_count;
-    map<string, int> spam_conditional_word_count;
-    map<string, int> ham_conditional_word_count;
+    map<string, long double> spam_conditional_word_count;
+    map<string, long double> ham_conditional_word_count;
     map<string, int> spam_testing_count;
     int spam_testing_line_count;
     map<string, int> ham_testing_count;
@@ -29,6 +29,8 @@ class calculate{
     long double prior_prob_ham;
     long double Plog_ham;
     long double Plog_spam;
+    long double min_Pham;
+    long double min_Pspam;
 
     public:
     calculate();
@@ -38,7 +40,8 @@ class calculate{
     void map_file_spam_testing(string filename);
     void prior_class_probablities(int k, int n);
     void conditional_word_probablities(int k);
-    void posterior_class_probablities();
+    void posterior_class_probablities(string testing_filename1, string testing_filename2);
     bool classify_message();
     void calculate_metric();
+    int calculate_distinct();
 };

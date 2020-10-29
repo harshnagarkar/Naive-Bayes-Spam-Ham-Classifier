@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
     cal.map_file_ham_testing(argv[3]);
     cal.map_file_spam_testing(argv[4]);
-    cal.posterior_class_probablities();
+    cal.posterior_class_probablities(argv[3],argv[4]);
     
     bool real =cal.classify_message();
     cout<<"THe message is: "<<real;

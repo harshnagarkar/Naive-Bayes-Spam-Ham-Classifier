@@ -143,7 +143,7 @@ void calculate::map_file_ham(string filename)
             while (lineStream >> value)
             {
                 // ham_word_count.insert(pair<string, int>(, 40));
-                if (ham_word_count.count(value) == 0)
+                if (ham_word_count.find(value)!=ham_word_count.end())
                 {
                     ham_word_count[value] = 1;
                     value = "";
@@ -180,8 +180,12 @@ int calculate::calculate_distinct()
     int distinct = 0;
     distinct += ham_word_count.size();
     for(auto elem: ham_word_count){
+        if(std::find(ham_word_count.begin(), ham_word_count.end(),elem)!=ham_word_count.end()){
+
         distinct_dictionary.push_back(elem.first);
+        }
     }
+    cout<<" current distinct"<<distinct_dictionary.size();
     for (auto elem : spam_word_count)
     {
         if (ham_word_count.count(elem.first) <= 0)
@@ -190,6 +194,7 @@ int calculate::calculate_distinct()
             distinct_dictionary.push_back(elem.first);
         }
     }
+    cout<<"distinct "<<distinct_dictionary.size();
     return distinct;
 }
 

@@ -11,6 +11,7 @@
 #include <math.h>
 #include <map>
 #include <iterator> 
+#include <vector>
 using namespace std;
 
 class calculate{
@@ -21,6 +22,7 @@ class calculate{
     map<string, int> spam_testing_count;
     int spam_testing_line_count;
     map<string, int> ham_testing_count;
+    vector<string> distinct_dictionary;
     int ham_testing_line_count;
     int spam_line_count;
     int ham_line_count;
@@ -36,6 +38,7 @@ class calculate{
     long double TNeg;
     long double FPos;
     int total_words;
+    map<string,pair<double,double>> conditional_dictionary;
 
     public:
     calculate();

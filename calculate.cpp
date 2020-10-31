@@ -290,10 +290,10 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             string value;
             Plog_ham = log(prior_prob_ham);
             Plog_spam = log(prior_prob_spam);
+            total_words++;
             // Read an integer at a time from the line
             while (lineStream >> value)
             {
-                total_words++;
 
                     // cout<<"Spam word: "<<spam_conditional_word_count[value];
                     Plog_ham += log(conditional_dictionary[value].first);
@@ -323,15 +323,13 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             string value;
             Plog_spam = log(prior_prob_spam);
             Plog_ham = log(prior_prob_ham);
-
+            total_words++;
             // cout<<min_Pham<<" rot "<<min_Pspam;
 
 
             // Read an integer at a time from the line
             while (lineStream >> value)
             {
-                total_words++;
-
                     Plog_spam += log(conditional_dictionary[value].second);
                     // cout<<spam_conditional_word_count[value]<<" t \n";
 
@@ -385,10 +383,10 @@ void calculate::calculate_metric(string given, string actual){
 };
 
 void calculate::print_metric(){
-    // cout<<"\n"<<TNeg<<" "<<FPos<<" "<<TPos<<" "<<FNeg<<"\n\n";
+    cout<<"\n"<<TNeg<<" "<<FPos<<" "<<TPos<<" "<<FNeg<<"\n\n";
     // cout<<"test"<< (TNeg/(TNeg+FPos));
     cout<<(long double)(TNeg/(TNeg+FPos))<<" ";
     cout<<(long double)(TPos/(TPos+FNeg))<<" ";
-    cout<<(long double)(TPos+TNeg)/(total_words+0.000);
+    cout<<(long double)(TPos+TNeg+(0.000))/(total_words);
 
 }

@@ -28,6 +28,8 @@ class calculate{
     int spam_line_count;
     int ham_line_count;
     int k, n;
+    int total_ham;
+    int total_spam;
     long double prior_prob_spam;
     long double prior_prob_ham;
     long double Plog_ham;

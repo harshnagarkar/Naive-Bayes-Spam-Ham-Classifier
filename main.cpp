@@ -11,7 +11,8 @@
 #include <math.h>
 #include <map>
 #include <iterator> 
-# include "calculate.h"
+#include <algorithm>
+#include "calculate.h"
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -23,6 +24,7 @@ int main(int argc, char *argv[])
     }
     int arg_len = (int) argc;
     int k = atoi(argv[arg_len-1]);
+
     calculate cal = calculate();
     cal.map_file_ham(argv[1]);
     cal.map_file_spam(argv[2]);

@@ -10,11 +10,14 @@ calculate::calculate()
     TNeg=0.0000;
     FPos=0.0000;
     total_words=0;
+    total_ham=0;
+    total_spam=0;
 }
 void calculate::map_file_spam(string filename)
 {
     ifstream myfile2(filename);
     string line2;
+    int count=0;
     if (myfile2.is_open())
     {
 
@@ -28,6 +31,7 @@ void calculate::map_file_spam(string filename)
             while (lineStream >> value)
             {
                 // ham_word_count.insert(pair<string, int>(, 40));
+                total_spam++;
                 if (spam_word_count.count(value) == 0)
                 {
                     spam_word_count[value] = 1;
@@ -143,7 +147,8 @@ void calculate::map_file_ham(string filename)
             while (lineStream >> value)
             {
                 // ham_word_count.insert(pair<string, int>(, 40));
-                if (ham_word_count.find(value)!=ham_word_count.end())
+                total_ham++;
+                if (ham_word_count.count(value) == 0)
                 {
                     ham_word_count[value] = 1;
                     value = "";
@@ -178,20 +183,23 @@ void calculate::prior_class_probablities(int k, int n)
 int calculate::calculate_distinct()
 {
     int distinct = 0;
-    distinct += ham_word_count.size();
+    // distinct += ham_word_count.size();
+    cout<<"before size "<<distinct_dictionary.size();
     for(auto elem: ham_word_count){
-        if(std::find(ham_word_count.begin(), ham_word_count.end(),elem)!=ham_word_count.end()){
-
+        if(find(distinct_dictionary.begin(),distinct_dictionary.end(),elem.first)==distinct_dictionary.end()){
+        distinct++;
         distinct_dictionary.push_back(elem.first);
+        cout<<elem.first<<" ";
         }
     }
     cout<<" current distinct"<<distinct_dictionary.size();
     for (auto elem : spam_word_count)
     {
-        if (ham_word_count.count(elem.first) <= 0)
+        if (find(distinct_dictionary.begin(),distinct_dictionary.end(),elem.first)==distinct_dictionary.end())
         {
             distinct++;
             distinct_dictionary.push_back(elem.first);
+            cout<<elem.first<<" ";
         }
     }
     cout<<"distinct "<<distinct_dictionary.size();
@@ -204,8 +212,8 @@ void calculate::conditional_word_probablities(int k)
 
     // cout<<" ham size: "<<ham_word_count.size();
 
-    min_Pham = (1.0000*k)/(ham_word_count.size()+k*n);
-    min_Pspam = (1.0000*k)/(spam_word_count.size()+k*n);
+    min_Pham = (1.0000*k)/(total_ham+k*n);
+    min_Pspam = (1.0000*k)/(total_spam+k*n);
     // for (auto elem : ham_word_count)
     // {
     //     // cout<<" conditional word probablity \n";
@@ -234,14 +242,25 @@ void calculate::conditional_word_probablities(int k)
     // }
     for (auto elem: distinct_dictionary)
     {
+        cout<<"\n "<<total_ham<<" "<<total_spam<<"\n";
         pair<double,double> data;
         if(ham_word_count.count(elem)!=0){
-            data.first=(1.0000 * (ham_word_count[elem] + k)) / (ham_line_count + k * n);
+            data.first=(1.0000 * (ham_word_count[elem] + k)) / (total_ham + k * n);
         }else{
             data.first=min_Pham;
         }
+
+
+
+
+
+
+
+
+
+
         if(spam_word_count.count(elem)!=0){
-            data.second=(1.000000 * (spam_word_count[elem] + k)) / (spam_line_count + k * n); //spam
+            data.second=(1.000000 * (spam_word_count[elem] + k)) / (total_spam + k * n); //spam
         }else{
             data.second=min_Pspam;
         }
@@ -269,21 +288,19 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             std::vector<string> lineData;
             std::stringstream lineStream(line);
             string value;
-            Plog_ham = log2l(prior_prob_ham);
-            Plog_spam = log2l(prior_prob_spam);
+            Plog_ham = log(prior_prob_ham);
+            Plog_spam = log(prior_prob_spam);
             // Read an integer at a time from the line
             while (lineStream >> value)
             {
                 total_words++;
 
                     // cout<<"Spam word: "<<spam_conditional_word_count[value];
-                    Plog_ham += log2l(conditional_dictionary[value].first);
+                    Plog_ham += log(conditional_dictionary[value].first);
                     // cout<<Plog_spam<<" value \n";
                     // cout<<" added "<< log2l(ham_conditional_word_count[value]);
 
-
-
-                    Plog_spam += log2l(conditional_dictionary[value].second);
+                    Plog_spam += log(conditional_dictionary[value].second);
                     // cout<<spam_conditional_word_count[value]<<" t \n";
                 
             }
@@ -304,8 +321,8 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             std::vector<string> lineData;
             std::stringstream lineStream(line2);
             string value;
-            Plog_spam = log2l(prior_prob_spam);
-            Plog_ham = log2l(prior_prob_ham);
+            Plog_spam = log(prior_prob_spam);
+            Plog_ham = log(prior_prob_ham);
 
             // cout<<min_Pham<<" rot "<<min_Pspam;
 
@@ -315,17 +332,19 @@ void calculate::posterior_class_probablities(string testing_filename1, string te
             {
                 total_words++;
 
-                    Plog_spam += log2l(conditional_dictionary[value].first);
+                    Plog_spam += log(conditional_dictionary[value].second);
                     // cout<<spam_conditional_word_count[value]<<" t \n";
 
 
-                    Plog_ham += log2l(conditional_dictionary[value].second);
+                    Plog_ham += log(conditional_dictionary[value].first);
 
             }
             cout << "\n Main value " << Plog_ham << " " << Plog_spam << "\n";
 
             string class_choosen=classify_message();
             cout<< class_choosen <<" "<<Plog_ham<<" "<<Plog_spam<<" \n";
+            Plog_spam=0;
+            Plog_ham=0;
             calculate_metric(class_choosen,"spam");
         }
     }
@@ -370,6 +389,6 @@ void calculate::print_metric(){
     // cout<<"test"<< (TNeg/(TNeg+FPos));
     cout<<(long double)(TNeg/(TNeg+FPos))<<" ";
     cout<<(long double)(TPos/(TPos+FNeg))<<" ";
-    cout<<(long double)(TPos+TNeg)/total_words;
+    cout<<(long double)(TPos+TNeg)/(total_words+0.000);
 
 }
